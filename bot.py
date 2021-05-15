@@ -7,14 +7,16 @@ import logging
 from resolution_any import ResolutionAny
 from resolution_bad import ResolutionBad
 from aspect_ratio_bad import AspectRatioBad
+from resolution_mismatch import ResolutionMismatch
 from comment import RemoveComment
 import sys
 
 LIMIT = 5
+SIGNATURE = "\n\n*I am a bot, and this action was performed automatically at the request of my master, u/LZ58840.*"
 
 
 def remove_post(post, comment):
-    comment = post.reply(comment.to_string())
+    comment = post.reply(comment.to_string() + SIGNATURE)
     comment.mod.distinguish(sticky=True)
     post.mod.lock()
     post.mod.remove()
@@ -43,11 +45,13 @@ class Chaser:
 
             removal_comment = RemoveComment()
 
-            for evaluator in [ResolutionAny, ResolutionBad, AspectRatioBad]:
+            for evaluator in [ResolutionAny, ResolutionBad, AspectRatioBad, ResolutionMismatch]:
                 curr = evaluator(post)
                 rule, content = curr.check()
                 if rule is not None:
                     removal_comment.add_violation(rule, content)
+                    if evaluator == ResolutionAny:
+                        break
 
             if not removal_comment.is_empty():
                 remove_post(post, removal_comment)
