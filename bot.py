@@ -1,5 +1,4 @@
 import time
-
 import praw
 import credentials as c
 import subreddits as s
@@ -12,7 +11,9 @@ from comment import RemoveComment
 import sys
 
 LIMIT = 5
-SIGNATURE = "\n\n*I am a bot, and this action was performed automatically at the request of my master, u/LZ58840.*"
+REFRESH = 60
+VERSION = "1.0 alpha 2"
+SIGNATURE = "\n\n*I am a bot, and this action was performed automatically at the request of my senpai, u/LZ58840.*"
 
 
 def remove_post(post, comment):
@@ -23,15 +24,23 @@ def remove_post(post, comment):
 
 
 class Chaser:
-    def __init__(self, reddit):
+    def __init__(self, reddit, subreddit):
         self.reddit = reddit
-        logging.debug("Successfully logged in!")
+        self.subreddit = subreddit
         self.logging_enabled = True
+        self.visited = []
+        logging.debug("Successfully logged in!")
 
     def mod_queue_handler(self, sub):
         logging.debug("Checking posts from %s...", sub)
         print("===== UNMODERATED =====")  # FOR TEST PURPOSES
         for post in self.reddit.subreddit(sub).mod.unmoderated(limit=LIMIT):
+            if post.id not in self.visited:
+                if len(self.visited) == 100:
+                    self.visited.pop(0)
+                self.visited.append(post.id)
+            else:
+                continue
             if post.selftext != "" or post.link_flair_text not in ["Desktop", "Mobile"]:
                 continue
             # FOR TEST PURPOSES
@@ -64,8 +73,8 @@ class Chaser:
                 self.mod_queue_handler(s.TEST)
             except Exception as e:
                 logging.exception(e)
-            logging.debug("Will check again in 1 minute...")
-            time.sleep(60)
+            logging.debug("Operations completed. Refreshing in {} seconds...".format(REFRESH))
+            time.sleep(REFRESH)
 
 
 class Seeker:
@@ -75,24 +84,24 @@ class Seeker:
 
 if __name__ == "__main__":
     logging.basicConfig(
+
         stream=sys.stdout,
-        level=logging.INFO,
+        level=logging.DEBUG,
         format="%(asctime)s %(levelname)s: %(message)s"
     )
-    logging.info("\nLZ CODE: 58842\nVersion 1.0 alpha\n\nHacking into the mainframe... ;)")
+    logging.info("\nLZ CODE: 58842")
+    logging.info("Version {}".format(VERSION))
+    logging.info("\nHey, senpai! I'm logging in...")
 
     LZ = Chaser(
-            praw.Reddit(
-                client_id=c.CLIENT_ID,
-                client_secret=c.CLIENT_SECRET,
-                user_agent=c.USER_AGENT,
-                username=c.USERNAME,
-                password=c.PASSWORD
-            )
-        )
+        praw.Reddit(
+            client_id=c.CLIENT_ID,
+            client_secret=c.CLIENT_SECRET,
+            user_agent=c.USER_AGENT,
+            username=c.USERNAME,
+            password=c.PASSWORD
+        ),
+        s.TEST
+    )
 
     LZ.run()
-
-
-
-
