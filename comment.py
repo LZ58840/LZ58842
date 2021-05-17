@@ -2,7 +2,9 @@ import logging
 from abc import abstractmethod, ABC
 
 # Moderator comment constants.
-SIGNATURE = "\n*I am a bot, and this action was performed automatically at the request of my senpai, u/LZ58840.* "
+SIGNATURE = "\n*I am a bot, " \
+            "and this action was performed automatically at the request of my senpai, " \
+            "[LZ58840](https://www.reddit.com/user/LZ58840/).* "
 
 
 class Comment:
