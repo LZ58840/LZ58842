@@ -1,40 +1,48 @@
-class RemoveComment:
+import logging
+from abc import abstractmethod, ABC
+
+# Moderator comment constants.
+SIGNATURE = "\n*I am a bot, and this action was performed automatically at the request of my senpai, u/LZ58840.* "
+
+
+class Comment:
     def __init__(self):
+        self.body = ""
+
+    @abstractmethod
+    def add(self, *args):
+        pass
+
+    @abstractmethod
+    def update(self, *args):
+        pass
+
+    def is_empty(self):
+        self.update()
+        return self.body == ""
+
+    def to_string(self):
+        self.update()
+        return self.body
+
+
+class RemovalComment(Comment, ABC):
+    def __init__(self):
+        super().__init__()
         self.violations = {}
 
-    def add_violation(self, rule, comment):
+    def add(self, rule, comment):
         if rule in self.violations:
             self.violations[rule] += ", " + comment
         else:
             self.violations[rule] = comment
 
-    def is_empty(self):
-        return self.to_string() == ""
-
-    def to_string(self):
-        content = ""
+    def update(self):
+        self.body = ""
         if len(self.violations) > 0:
-            content = "removed, "
+            self.body = "removed, "
             for rule in self.violations.keys():
-                content += "rule " + str(rule) + ": "
-                content += self.violations[rule]
-                content += ".\n\n; "
-            content = content.rstrip("; ")
-        return content
-
-
-class NoteComment:
-    def __init__(self):
-        self.content = ""
-
-    def add_note(self, note):
-        if self.is_empty():
-            self.content = note
-        else:
-            self.content += ", " + note
-
-    def is_empty(self):
-        return self.content == ""
-
-    def to_string(self):
-        return "note: " + self.content
+                self.body += "rule " + str(rule) + ": "
+                self.body += self.violations[rule]
+                self.body += ".\n\n; "
+            self.body = self.body.rstrip("; ")

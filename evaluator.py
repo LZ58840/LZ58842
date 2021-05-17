@@ -3,10 +3,9 @@ from abc import abstractmethod
 
 
 class Evaluator:
-    def __init__(self, post, name):
-        self.post = post
-        logging.debug("Successfully created a {} Evaluator for post {}".format(name, post.name))
-        self.logging_enabled = True
+    def __init__(self, submission, name):
+        self.submission = submission
+        logging.debug("Successfully created a %s Evaluator for submission %s.", name, submission.name)
 
     @abstractmethod
     def evaluate(self):
@@ -19,4 +18,4 @@ class Evaluator:
     def check(self):
         if not self.evaluate():
             return self.to_string()
-        return None, None
+        return None
