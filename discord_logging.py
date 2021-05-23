@@ -45,15 +45,4 @@ class LoggingClient(discord.Client):
             await message.channel.send(DISCORD_TEST_MSG)
 
 
-"""@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
-
-    if message.content == "!test msg" and message.author.name == "LZ58840":
-        await message.channel.send('Understood, senpai!')"""
-
-# client.run('ODQzODk1NzMyOTY0MTYzNjU0.YKKhJQ.d0EEFDIOenoh9RV6_Fn7K2MpEqY')
-
-
 
