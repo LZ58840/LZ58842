@@ -3,12 +3,22 @@ import time
 from comment import SIGNATURE, RemovalComment
 
 # Moderation queue constants.
-LIMIT = 100
+LIMIT = 10
 REFRESH = 60
 
 
+def create_action(submission, comment):
+    return {
+        "title": submission.title,
+        "author": submission.author.name,
+        "type": submission.link_flair_text,
+        "permalink": submission.shortlink,
+        "comment": comment.to_string()
+    }
+
+
 class Moderator:
-    def __init__(self, reddit, subreddit, skip_flags, rules, priority):
+    def __init__(self, reddit, subreddit, skip_flags, rules, priority, logging_queue, shadow_mode):
         self.reddit = reddit
         self.subreddit = subreddit
         self.skip_flags = skip_flags
@@ -16,15 +26,16 @@ class Moderator:
         self.priority_rules = [rules[index] for index in priority]
         self.visited = []
         self.logging_enabled = True
+        self.logging_queue = logging_queue
         self.counter = 1
-        self.shadow_mode = False
+        self.shadow_mode = shadow_mode
         logging.debug("%s object created.", self.__class__.__name__)
-        if self.shadow_mode:
-            logging.warning("Shadow mode is enabled, no real action will be taken.")
 
     def remove_submission(self, submission, removal_comment):
-        if not self.shadow_mode:
-            logging.debug("Removing post %s...\n", submission.id)
+        if self.shadow_mode:
+            logging.warning("Shadow mode is enabled, no real action will be taken.")
+        else:
+            logging.debug("Removing post %s...", submission.id)
             comment = submission.reply(removal_comment.to_string() + SIGNATURE)
             comment.mod.distinguish(sticky=True)
             submission.mod.lock()
@@ -47,7 +58,7 @@ class Moderator:
         return result
 
     def submission_details(self, submission):
-        logging.info("\n---------- SUBMISSION #%d ----------", self.counter)
+        logging.info("---------- SUBMISSION #%d ----------", self.counter)
         logging.debug("Submission ID: %s", submission.id)
         logging.info("Title: %s", submission.title)
         logging.info("Author: %s", submission.author.name)
@@ -70,7 +81,6 @@ class Moderator:
     def queue_handler(self):
         self.counter = 1
         logging.debug("Checking latest %d submissions from %s...", LIMIT, self.subreddit)
-        logging.info("\n========== UNMODERATED ==========")
         for submission in self.reddit.subreddit(self.subreddit).mod.unmoderated(limit=LIMIT):
             if self.has_visited(submission) or self.can_skip(submission):
                 continue
@@ -78,11 +88,12 @@ class Moderator:
             removal_comment = self.rule_handler(submission)
             if not removal_comment.is_empty():
                 self.remove_submission(submission, removal_comment)
+                self.logging_queue.put(create_action(submission, removal_comment))
             self.counter += 1
 
     def run(self):
         while True:
-            logging.debug("\nRefreshing...")
+            logging.debug("Refreshing...")
             try:
                 self.queue_handler()
             except Exception as e:

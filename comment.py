@@ -1,4 +1,3 @@
-import logging
 from abc import abstractmethod, ABC
 
 # Moderator comment constants.

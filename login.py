@@ -10,7 +10,7 @@ LOGIN_SLEEP = 5
 
 
 def login():
-    logging.info("\nHey senpai! I'm logging in~")
+    logging.info("Hey senpai! I'm logging in~")
     for attempt in range(LOGIN_TRIES):
         try:
             instance = praw.Reddit(
