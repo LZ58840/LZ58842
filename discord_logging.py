@@ -43,6 +43,3 @@ class LoggingClient(discord.Client):
 
         if message.content == "!test msg" and message.author.name == "LZ58840":
             await message.channel.send(DISCORD_TEST_MSG)
-
-
-
