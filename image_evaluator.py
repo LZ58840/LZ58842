@@ -9,7 +9,7 @@ from abc import ABC
 
 FLAIR_MOBILE = "Mobile"
 FLAIR_DESKTOP = "Desktop"
-RESOLUTION_ANY = r"[(\[]([0-9]{3,})\s?[Xx×]\s?([0-9]{4,})[)\]]"
+RESOLUTION_ANY = r"[(\[]\s?([0-9]{3,})\s?[Xx×]\s?([0-9]{4,})\s?[)\]]"
 RESOLUTION_MIN = {FLAIR_MOBILE: [900, 1600], FLAIR_DESKTOP: [1920, 1080]}
 ASPECT_RATIO = {FLAIR_MOBILE: 0.625, FLAIR_DESKTOP: 1.6}
 
