@@ -11,7 +11,7 @@ from config import RULES, PRIORITY, DISCORD_TOKEN
 from discord_logging import LoggingClient
 
 
-VERSION = "2.3"
+VERSION = "2.3.1"
 SUBREDDIT = "Animewallpaper"
 
 
@@ -19,7 +19,7 @@ def run_mod(input_queue, output_queue):
     login_instance = login()
     time.sleep(10)
     if login_instance is not None:
-        moderator = Moderator(login_instance, SUBREDDIT, SKIP_FLAGS, RULES, PRIORITY, output_queue, input_queue, True)
+        moderator = Moderator(login_instance, SUBREDDIT, SKIP_FLAGS, RULES, PRIORITY, output_queue, input_queue, False)
         logging.warning("Shadow mode is enabled by default.")
         moderator.run()
     else:
