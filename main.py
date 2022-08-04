@@ -28,9 +28,12 @@ def run_mod(input_queue, output_queue):
 
 
 def run_logger(input_queue, output_queue):
-    asyncio.set_event_loop(asyncio.new_event_loop())
+    # https://stackoverflow.com/a/51610341
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
     discord_logger = LoggingClient(output_queue, input_queue)
-    discord_logger.run(DISCORD_TOKEN)
+    loop.run_until_complete(discord_logger.run(DISCORD_TOKEN))
+    loop.run_forever()
 
 
 if __name__ == "__main__":
